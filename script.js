@@ -8,7 +8,7 @@ const bossMaxHP = 235_000_000; // 235 million HP
 let bossHP = bossMaxHP;
 
 const tankMaxHP = 500_000; // Example tank HP, adjust as needed
-const totalDPS = 550_000; // 550k DPS
+const totalDPS = 786_000; // 786k DPS
 
 const rendFleshDPSPerGuardian = 20_000; // example damage per second to tank from Rend Flesh
 
