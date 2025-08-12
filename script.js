@@ -49,6 +49,9 @@ let petrifyTimer = 0; // counts time during petrify active
 let petrifyDelayTimer = PETRIFY_DELAY; // counts delay before petrify starts
 let petrifyActive = false; // whether petrify timer is ticking
 
+let petrifyRotation = [];    // current order of the 3 guardians for petrify
+let petrifyIndex = 0;        // current position in the rotation (0 to 2)
+
 let gameMessage = "";      // current status message (success, fail, info)
 let gameOver = false;      // whether the fight ended in fail
 
@@ -74,6 +77,25 @@ function startFight() {
     //if (tickInterval) clearInterval(tickInterval);
     //tickInterval = setInterval(tick, 1000);
     requestAnimationFrame(gameLoop);
+}
+
+function startPetrify() {
+  if (petrifyRotation.length === 0) {
+    // first rotation ever, no previous last guardian
+    petrifyRotation = generateRotation(null);
+  } else if (petrifyIndex >= petrifyRotation.length) {
+    // finished current rotation, generate new one avoiding repeats
+    const lastGuardian = petrifyRotation[petrifyRotation.length - 1];
+    petrifyRotation = generateRotation(lastGuardian);
+    petrifyIndex = 0;
+  }
+
+  const guardianName = petrifyRotation[petrifyIndex];
+  petrifyIndex++;
+
+  petrifyingGuardian = guardians.find(g => g.name === guardianName);
+
+  guardians.forEach(g => g.petrifying = (g === petrifyingGuardian));
 }
 
 let lastTimestamp = 0;
@@ -135,11 +157,10 @@ function updateLogic(deltaTime) {
         // Petrify is NOT active, so we are in the delay phase before a new petrify
         petrifyDelayTimer -= deltaTime;
         if (petrifyDelayTimer <= 0) {
-        // Start petrify phase
-        petrifyDelayTimer = PETRIFY_DELAY;
-        petrifyTimer = 0;
-        pickRandomPetrifier(guardians.find(g => g.petrifying)?.name); // Pick a new guardian to petrify
-        petrifyActive = true;
+            petrifyDelayTimer = PETRIFY_DELAY;
+            petrifyTimer = 0;
+            startPetrify();  // sets petrifyingGuardian from rotation
+            petrifyActive = true;
         }
     } else {
         // Petrify active, timer counts up
@@ -176,6 +197,28 @@ function pickRandomPetrifier(excludeName = null) {
     let candidates = guardians.filter(g => g.name !== excludeName);
     let choice = candidates[Math.floor(Math.random() * candidates.length)];
     choice.petrifying = true;
+}
+
+function generateRotation(prevLastGuardian) {
+  // get a shuffled array of guardians
+  const names = guardians.map(g => g.name);
+  
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  let newRotation = shuffle(names.slice());
+
+  // If the first guardian equals prevLastGuardian, reshuffle
+  while (newRotation[0] === prevLastGuardian) {
+    newRotation = shuffle(names.slice());
+  }
+
+  return newRotation;
 }
 
 function swapGuardian(name) {
