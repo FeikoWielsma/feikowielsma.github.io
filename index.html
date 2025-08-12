@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Stone Guard Taunt Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Stone Guard - MoP Classic (10m) Taunt Practice</h1>
+
+    <canvas id="arena" width="800" height="500"></canvas>
+
+    <div id="game-message" style="position: fixed; top: 10px; left: 50%; transform: translateX(-50%); 
+  background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; 
+  font-size: 18px; pointer-events: none; opacity: 0; transition: opacity 0.5s;"></div>
+
+    <div id="controls">
+        <button onclick="startFight()">Start Simulation</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
